@@ -65,9 +65,9 @@ IO-bound vs CPU-bound
 * gevent
 * eventlet
 
-------
+----------
 Celerybeat
-------
+----------
 
 Role
 ----
