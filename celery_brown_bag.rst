@@ -65,6 +65,16 @@ IO-bound vs CPU-bound
 * gevent
 * eventlet
 
+------
+Celerybeat
+------
+
+Role
+----
+Replace a cron.
+
+It sends tasks messages regularly
+
 ---------------
 Work4Labs usage
 ---------------
