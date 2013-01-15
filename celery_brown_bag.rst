@@ -71,9 +71,24 @@ Celerybeat
 
 Role
 ----
+
 Replace a cron.
 
 It sends tasks messages regularly
+
+------------------
+Program for celery
+------------------
+
+What it looks like?
+
+Task, Callback, Group, Delay
+
+Error handling, Timeout, Logging
+
+What to keep in mind?
+
+Best practices
 
 ---------------
 Work4Labs usage
