@@ -9,6 +9,7 @@ Overview / Goal
 ---------------
 
 Distributed
+
 Asynchrone (or not)
 
 
@@ -50,3 +51,21 @@ IO-bound vs CPU-bound
 * process
 * gevent
 * eventlet
+
+---------------
+Work4Labs usage
+---------------
+
+Engines
+-------
+
+Use case, technical spec
+
+Imports
+-------
+
+Use case, technical spec
+
+------
+Future
+------
