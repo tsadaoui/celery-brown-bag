@@ -8,10 +8,12 @@ Work4Labs
 Overview / Goal
 ---------------
 
-Distributed
+The model
 
 Asynchrone (or not)
+Distributed
 
+Use case
 
 ------
 Broker
@@ -20,9 +22,18 @@ Broker
 Role
 ----
 
-RabbitMQ (recommanded)
-Redis
-Mongo
+What is a broker?
+
+broker vs DB
+
+Implementation
+--------------
+
+Difference between main backends:
+
+* RabbitMQ (AMQP: recommanded)
+* Redis
+* Mongo
 
 Supported brokers
 -----------------
@@ -42,6 +53,8 @@ Worker
 
 Role
 ----
+
+What is a broker?
 
 Concurrency
 -----------
