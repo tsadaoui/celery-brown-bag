@@ -90,6 +90,14 @@ What to keep in mind?
 
 Best practices
 
+---------
+Ecosystem
+---------
+
+django-celery
+
+...
+
 ---------------
 Work4Labs usage
 ---------------
