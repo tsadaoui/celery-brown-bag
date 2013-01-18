@@ -5,7 +5,7 @@ Celery brown bag
 Work4Labs
 
 ---------------
-Overview / Goal
+Overview / Goal (laurent)
 ---------------
 
 The model
@@ -19,14 +19,14 @@ Use case
 Broker
 ------
 
-Role
+Role (laurent)
 ----
 
 What is a broker?
 
 broker vs DB
 
-Implementation
+Implementation (shared)
 --------------
 
 Difference between main backends:
@@ -35,7 +35,7 @@ Difference between main backends:
 * Redis
 * Mongo
 
-Supported brokers
+Supported brokers (laurent)
 -----------------
 
 Complete list:
@@ -51,12 +51,12 @@ Complete list:
 Worker
 ------
 
-Role
+Role (laurent)
 ----
 
 What is a broker?
 
-Concurrency
+Concurrency (tewfik)
 -----------
 
 IO-bound vs CPU-bound
@@ -66,7 +66,7 @@ IO-bound vs CPU-bound
 * eventlet
 
 ----------
-Celerybeat
+Celerybeat (laurent)
 ----------
 
 Role
@@ -77,7 +77,7 @@ Replace a cron.
 It sends tasks messages regularly
 
 ------------------
-Program for celery
+Program for celery (laurent)
 ------------------
 
 What it looks like?
@@ -91,10 +91,12 @@ What to keep in mind?
 Best practices
 
 ---------
-Ecosystem
+Ecosystem (tewfik)
 ---------
 
-django-celery
+django-celery (django admin)
+flower
+monitoring (celerycam)
 
 ...
 
@@ -102,16 +104,12 @@ django-celery
 Work4Labs usage
 ---------------
 
-Engines
+Engines (laurent)
 -------
 
 Use case, technical spec
 
-Imports
+Imports (tewfik)
 -------
 
 Use case, technical spec
-
-------
-Future
-------
