@@ -68,7 +68,14 @@ Worker
 Role (laurent)
 ----
 
-What is a broker?
+A worker is ... a worker !
+It Does the job.
+
+Once executed the worker is splitted in nodes. Each node being an independant process. Each first load the code that may be executed on it
+then it fetches relevant messages from the broker and process them.
+
+By default celery start as many nodes as the number of cores in the machine processor. In order to maximise the efficiency.
+The amount of nodes can be reduced for instance in case of memory problem to avoid loading the full code each time.
 
 Concurrency (tewfik)
 -----------
