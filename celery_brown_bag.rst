@@ -144,8 +144,31 @@ monitoring (celerycam)
 Work4Labs usage
 ---------------
 
+In work4lasb, we use celery on two parts : In the imports and newly on work4us
+
 Engines (laurent)
 -------
+
+On the engines part (works in the whole work4us python code)
+adding a celery task is done by creating a class inheriting from CeleryTask or CelerybeatTask (cf lib/python/w4l_celery)
+
+tasks are stored in lib/python/w4l/async_engines/tasks (w4l/task for work4us)
+
+Remark, for now task name must be adde to the __init__.__all__ for it to be registered by celery
+
+the task must have a name matching the module name (and be the snake case of the class name.)
+a _process() method (the code executed)
+
+calling the task :
+just need to call the apply_async() method of the task instance. ex 
+update = UpdateMongoUserCache()
+update.apply_async(kwargs={'uid':'1112223334', 'force':false})
+
+then the task is in the broker ready to be executed ... sometimes once the broker is started.
+In dev you can start the worker with bin/run_dev if your settings are up to date :)
+
+
+our crontab is described in : config/crontab/*.beat (* describing the environment : local, demo, prod)
 
 Use case, technical spec
 
