@@ -8,12 +8,14 @@ Work4Labs
 Overview / Goal (laurent)
 ---------------
 
-The model
+Celery is a asynchronous tasks queue. it is composed of a broker that receive tasks orders to be exectudes and
+workers that fetch these orders from the broker and execute them.
+the main goal of the system is to be asynchronous. That is to say when you ask celery to execute a task, you don't know when it will be really executed.
+It can be at once if the task is high priority or a long time later if the system is crowded for instance.
 
-Asynchrone (or not)
-Distributed
-
-Use case
+The second characteristic of celery is to be a distributed system. the central element is the broker that gather tasks orders 
+provided by different sources (code, cron, ...). 
+Workers though can be on different machines, with different configuration. They just need to have access to the broker to get their tasks to execute.
 
 ------
 Broker
@@ -21,8 +23,14 @@ Broker
 
 Role (laurent)
 ----
+The broker is the queue of the system.
+It gather tasks orders store them and distribute them to workers given their priority, arguments ...
 
-What is a broker?
+Broker implementation can rely on different technologies.
+It can be queue managers as RabbitMQ, specialized or rely on databases.
+
+beeing developped for queue managment, broker are reliable and fast brokers. but they must be installed and configured independently.
+Yet use a database usually means you don't have much configuration, integration to do.
 
 broker vs DB
 
