@@ -42,9 +42,15 @@ Difference between main backends:
 * RabbitMQ (AMQP: recommanded)
 * Redis
 * Mongo
+MongoDB beeing already used on work4us, it has been chosen as a broker for work4us celery implementation.
+
+In spite of beeing a little slower than RabbitMQ for instance,
+it was much easier to configure. We basically just had to specify the database to use.
 
 Supported brokers (laurent)
 -----------------
+
+celery has been integrated with a lot of possible brokers. Here is a list of the brokers available.
 
 Complete list:
 
