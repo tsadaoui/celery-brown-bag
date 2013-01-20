@@ -93,9 +93,12 @@ Celerybeat (laurent)
 Role
 ----
 
-Replace a cron.
+Celerybeat is an additionnal feature provided by celery. It is basically a cron. It just send to the broker tasks order regularly
+Schedules support cronlike description (each day at 1 pm, each month ...)
+or frequency description (every  X minutes ...)
 
-It sends tasks messages regularly
+Celerybeat can be executed along celery daemon (-B option) or in a separate daemon.
+Separate them obviously enable to keep one's execution while the other one is stopped !
 
 ------------------
 Program for celery (laurent)
