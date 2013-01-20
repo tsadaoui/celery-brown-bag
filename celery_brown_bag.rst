@@ -8,7 +8,7 @@ Work4Labs
 Overview / Goal (laurent)
 ---------------
 
-Celery is a asynchronous tasks queue. it is composed of a broker that receive tasks orders to be exectudes and
+Celery is a asynchronous tasks queue. Written in Python, it is composed of a broker that receive tasks orders to be exectudes and
 workers that fetch these orders from the broker and execute them.
 the main goal of the system is to be asynchronous. That is to say when you ask celery to execute a task, you don't know when it will be really executed.
 It can be at once if the task is high priority or a long time later if the system is crowded for instance.
@@ -105,14 +105,30 @@ Program for celery (laurent)
 ------------------
 
 What it looks like?
+Show CeleryTask
+show demo task
+show task sending
 
 Task, Callback, Group, Delay
+Celery supports a batch of tools to improve the managment of the tasks processing. That includes
+callbacks( what to execute as callback for a specific task), group tasks, to solve dependancy problems, factorize configuration and timeouts.
+Celery uses two timeouts : 
+Soft Timeout : a signal ask the node to raise a Celery SoftTimeOutException.
+Hard timeout : the process is just shut down and the node restarted (kill -9).
 
-Error handling, Timeout, Logging
+By default logging is overwritten by celery which catches all logs from the tasks and redirect them to the task logger and by default to the celery logger.
+
+= Error handling, Timeout, Logging
 
 What to keep in mind?
 
 Best practices
+
+When dealing with celery we must always keep things in mind : 
+distributed : do not use class variables for anything but reading since objects can be run elswere, twice at the same time ..
+asynchronous : try to avoid linear coding : don't wait for a task to be executed, keep concurrency problems in mind (use as few locks as possible, don't monopolise ressources...)
+keep your organisation in mind : do not pollute a queue with a task that could prevent others to be executed, share data as much as possible to avoid overload the machine.
+in case of overload, you can start a new worker easily
 
 ---------
 Ecosystem (tewfik)
