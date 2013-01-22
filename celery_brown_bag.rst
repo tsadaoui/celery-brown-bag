@@ -8,14 +8,16 @@ Work4Labs
 Overview / Goal (laurent)
 ---------------
 
-Celery is a asynchronous tasks queue. Written in Python, it is composed of a broker that receive tasks orders to be exectudes and
+Celery is an asynchronous tasks queue. Written in Python, it is composed of a broker that receive tasks orders to be exectudes and
 workers that fetch these orders from the broker and execute them.
 the main goal of the system is to be asynchronous. That is to say when you ask celery to execute a task, you don't know when it will be really executed.
 It can be at once if the task is high priority or a long time later if the system is crowded for instance.
 
-The second characteristic of celery is to be a distributed system. the central element is the broker that gather tasks orders 
+The second characteristic of Celery is to be a distributed system. the central element is the broker that gather tasks orders 
 provided by different sources (code, cron, ...). 
 Workers though can be on different machines, with different configuration. They just need to have access to the broker to get their tasks to execute.
+
+There is only a python implementation of Celery but, in theory, a worker can be implemented in any language which support AMQP and basic serialization tool (JSON, XML, Pickle ...)
 
 ------
 Broker
@@ -23,13 +25,15 @@ Broker
 
 Role (laurent)
 ----
+
 The broker is the queue of the system.
 It gather tasks orders store them and distribute them to workers given their priority, arguments ...
 
 Broker implementation can rely on different technologies.
 It can be queue managers as RabbitMQ, specialized or rely on databases.
 
-beeing developped for queue managment, broker are reliable and fast brokers. but they must be installed and configured independently.
+Being developped for queue managment, brokers are reliable and fast brokers. But they must be installed
+and configured independently.
 Yet use a database usually means you don't have much configuration, integration to do.
 
 broker vs DB
@@ -39,10 +43,36 @@ Implementation (shared)
 
 Difference between main backends:
 
-* RabbitMQ (AMQP: recommanded)
+* RabbitMQ
 * Redis
 * Mongo
-MongoDB beeing already used on work4us, it has been chosen as a broker for work4us celery implementation.
+
+
+RabbitMQ
+~~~~~~~~
+
+* recommanded by Celery project
+* AMQP (standard)
+* Safe (unelikely to lose data)
+* Rock solid (erlang inside)
+* Performant and Scalable (examples with 20,000 msg/sec)
+
+Redis
+~~~~~
+
+* Fast!
+* PUB/SUB support (delay implementation is faster) 
+* In memory (risk of data loss)
+
+RabbitMQ and Redis are the only brokers which support all celery features,
+and may be required for some specific needs (complex task aknowledgment,
+message routing ...).
+
+MongoDB
+~~~~~~~
+
+MongoDB beeing already used on work4us, it has been chosen as a broker for work4us
+celery implementation.
 
 In spite of beeing a little slower than RabbitMQ for instance,
 it was much easier to configure. We basically just had to specify the database to use.
@@ -77,14 +107,22 @@ then it fetches relevant messages from the broker and process them.
 By default celery start as many nodes as the number of cores in the machine processor. In order to maximise the efficiency.
 The amount of nodes can be reduced for instance in case of memory problem to avoid loading the full code each time.
 
+Routing
+-------
+
+XXXXXXXXXXXXXXXXXXXXXX
+
 Concurrency (tewfik)
 -----------
 
 IO-bound vs CPU-bound
 
-* process
-* gevent
-* eventlet
+* processes: a worker dispatch the work to several processes => parallelism
+
+* gevent    | event + greenlet (green thread) + monkey patching
+* eventlet  | => "fake parallelism" + make third parties libs cooperative => achieve good asynchronicity
+
+* multi-worker: distributed
 
 ----------
 Celerybeat (laurent)
@@ -93,7 +131,10 @@ Celerybeat (laurent)
 Role
 ----
 
-Celerybeat is an additionnal feature provided by celery. It is basically a cron. It just send to the broker tasks order regularly
+Celerybeat is an additionnal feature provided by celery. It is basically a cron with
+advanced logging, routing, and monitoring possibilities.
+
+It just send to the broker tasks order regularly.
 Schedules support cronlike description (each day at 1 pm, each month ...)
 or frequency description (every  X minutes ...)
 
@@ -105,40 +146,106 @@ Program for celery (laurent)
 ------------------
 
 What it looks like?
-Show CeleryTask
-show demo task
-show task sending
+-------------------
 
-Task, Callback, Group, Delay
-Celery supports a batch of tools to improve the managment of the tasks processing. That includes
-callbacks( what to execute as callback for a specific task), group tasks, to solve dependancy problems, factorize configuration and timeouts.
+Show CeleryTask::
+
+  from celery import task
+
+  @task
+  def export_task(self, job_id, fb_page):
+      job = Job.objects.get(id=job_id)
+      send_job(job, fb_page)  # sloooowwwwww HTTP request, we have to wait
+      job.state = 'active'
+      job.save()
+
+  # send a task to the broker
+  export_task.delay(42, fb_page)
+
+
+Celery supports a batch of tools to improve the managment of the tasks processing.
+That includes callbacks( what to execute as callback for a specific task), group tasks,
+to solve dependancy problems, factorize configuration and timeouts.
+
 Celery uses two timeouts : 
-Soft Timeout : a signal ask the node to raise a Celery SoftTimeOutException.
-Hard timeout : the process is just shut down and the node restarted (kill -9).
 
-By default logging is overwritten by celery which catches all logs from the tasks and redirect them to the task logger and by default to the celery logger.
+* Soft Timeout : a signal ask the node to raise a Celery SoftTimeOutException.
+* Hard timeout : the process is just shut down and the node restarted (kill -9).
 
-= Error handling, Timeout, Logging
+By default logging is overwritten by celery which catches all logs from the tasks
+and redirect them to the task logger and by default to the celery logger.
 
 What to keep in mind?
+---------------------
 
 Best practices
+--------------
 
-When dealing with celery we must always keep things in mind : 
-distributed : do not use class variables for anything but reading since objects can be run elswere, twice at the same time ..
-asynchronous : try to avoid linear coding : don't wait for a task to be executed, keep concurrency problems in mind (use as few locks as possible, don't monopolise ressources...)
-keep your organisation in mind : do not pollute a queue with a task that could prevent others to be executed, share data as much as possible to avoid overload the machine.
-in case of overload, you can start a new worker easily
+Think asynchronous 
+~~~~~~~~~~~~~~~~~~
+
+* blocking instruction are evil
+* Keep your organisation in mind: do not pollute a queue with a task that could prevent others to be executed (dead lock),
+* avoid linear coding: don't wait for a task to be executed (unless you have a good reason to do so)
+
+Concurrency create problems
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* think distributed: do not use class variables for anything but reading since objects can be run elswere, twice at the same time ..
+* side effects => you will never find your bugs
+* since your app is distributed and parallel, you NEED good logging
+* locks are not cool
+
+Keep your system healthy
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* monitor your queue length!
+* and be ready to add workers when the queue get too long
+* remove workers if too many of them are idle
+  (remove servers, save power, be ecological, save the world!)
+
+Make your tasks idempotent
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Idempotent task: you can run the same task with the sames arguments without
+                 destroying the system
+
+acks_late options
+
+Celery will be able to dispatch your tasks more efficiently. Celery workers
+reserve several tasks in advance and execute everything in parallel, but if
+a worker is overloaded (worse hardware, long task ...) and another is idle,
+the 2nd will be able to reserve some tasks of the first one and to execute them.
+
+=> your tasks will be evaluated faster
+
+This principle is especially important if some tasks are way longer than others.
 
 ---------
 Ecosystem (tewfik)
 ---------
 
-django-celery (django admin)
-flower
-monitoring (celerycam)
+flower 
+~~~~~~
 
-...
+Monitoring interface
+
+screenshot
+
+django-celery
+~~~~~~~~~~~~~
+
+Django integration:
+
+* django admin (schedule your task, get the results, errors)
+* config
+
+screenshot
+
+monitoring
+~~~~~~~~~~
+
+(celerycam) screenshot
 
 ---------------
 Work4Labs usage
@@ -170,9 +277,20 @@ In dev you can start the worker with bin/run_dev if your settings are up to date
 
 our crontab is described in : config/crontab/*.beat (* describing the environment : local, demo, prod)
 
-Use case, technical spec
 
 Imports (tewfik)
 -------
 
-Use case, technical spec
+Import system (Job Pipe) is extensively based on celery, almost all the code
+live in celery tasks.
+
+An imports is divided in several steps (crawl, transform, export) and each of
+these is splitted in several celery tasks.
+
+Feature used:
+
+* Scheduler: Imports are launched regularly
+* Django admin: easy task management
+* Parallelism: run a lot of imports, export to several pages...
+* Asynchronicity: continue to work when waiting for external services.
+* Scalability: prepare the future
